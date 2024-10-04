@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: qrpagar_app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - qrpagar_network
+
+  db:
+    image: postgres:13
+    container_name: qrpagar_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: qrpagar
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - qrpagar_network
+
+  alembic:
+    image: python:3.11
+    container_name: alembic_migrations
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: [ "sh", "-c", "alembic upgrade head" ]
+    depends_on:
+      - db
+    networks:
+      - qrpagar_network
+
+volumes:
+  postgres_data:
+
+
+networks:
+  qrpagar_network:
+    driver: bridge
