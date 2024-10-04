@@ -1,6 +1,8 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from app.utils.websocket_manager import manager
 import logging
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+from app.utils.websocket_manager import manager
 
 router = APIRouter()
 
@@ -18,7 +20,6 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 data = await websocket.receive_text()
                 logger.info(f"Mensagem recebida: {data}")
-                # Opcional: processar mensagens recebidas dos clientes
             except WebSocketDisconnect:
                 logger.info("Cliente desconectado")
                 break
@@ -28,5 +29,5 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.error(f"Erro no WebSocket: {e}")
     finally:
-        await manager.disconnect(websocket)
+        manager.disconnect(websocket)
         logger.info("Conexão WebSocket encerrada")
